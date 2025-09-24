@@ -1,0 +1,2636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>冯氏族谱 - 家谱树</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: #fff;
+            padding: 20px 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        h1 {
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .search-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #searchInput {
+            padding: 10px;
+            width: 80%;
+            max-width: 400px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #searchButton {
+            padding: 10px 20px;
+            border: none;
+            background-color: #3498db;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .section-title {
+            margin-top: 40px;
+            padding-left: 10px;
+            border-left: 4px solid #3498db;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .family-tree {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .branch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fafafa;
+            margin-bottom: 20px;
+        }
+        .person-card {
+            background: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            padding: 10px 15px;
+            margin: 10px;
+            border-radius: 5px;
+            min-width: 280px;
+            text-align: left;
+            position: relative;
+        }
+        .person-card strong {
+            color: #2980b9;
+        }
+        .person-info span {
+            display: block;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .notes {
+            font-style: italic;
+            color: #7f8c8d;
+            margin-top: 5px;
+            font-size: 0.8em;
+        }
+        .children {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: relative;
+            margin-top: 20px;
+            padding-top: 20px;
+        }
+        .children::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 2px;
+            height: 20px;
+            background-color: #555;
+            transform: translateX(-50%);
+        }
+        .children-line {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #555;
+        }
+        .child-node {
+            position: relative;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 10px;
+        }
+        .child-node::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            height: 20px;
+            width: 2px;
+            background-color: #555;
+            transform: translateX(-50%);
+        }
+        .highlight {
+            background-color: #f1c40f;
+            box-shadow: 0 0 8px rgba(241, 196, 15, 0.8);
+        }
+        /* Navigation Bar Styles */
+        nav {
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 10px 20px;
+            margin-bottom: 40px;
+        }
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            margin-right: 20px;
+        }
+        nav a:hover {
+            color: #007bff;
+        }
+        nav .search-container {
+            display: flex;
+            align-items: center;
+        }
+        nav #searchInput {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+            width: 250px;
+        }
+        nav #clearSearch {
+            padding: 8px 12px;
+            background-color: #f4f4f4;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        nav #clearSearch:hover {
+            background-color: #e2e2e2;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<nav class="bg-white shadow-md mb-8 rounded-xl flex flex-col sm:flex-row justify-between items-center px-6 py-4">
+    <div class="flex items-center gap-4 mb-2 sm:mb-0">
+        <a href="../index.html" class="text-lg font-bold text-indigo-700 hover:text-indigo-900">首页</a>
+        <a href="family-tree.html" class="text-lg font-bold text-blue-600 hover:text-blue-800">家族世系图</a>
+        <a href="Stem.html" class="text-lg font-bold text-green-600 hover:text-green-800">家族支系</a>
+    </div>
+    <div class="flex items-center gap-2">
+        <input id="searchInput" type="text" placeholder="搜索成员或支系..." class="px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400" />
+        <button id="clearSearch" class="px-3 py-2 bg-gray-200 rounded-full text-gray-600 hover:bg-gray-300">清除</button>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>冯氏族谱可视化</h1>
+    <p style="text-align: center;">此家谱信息来自《冯氏族谱》扫描件。</p>
+
+    <div class="section-title">(二十九)长支梧公之派 - 第十三世</div>
+    <div class="family-tree">
+        <div class="branch">
+            <h2>经权之派</h2>
+            <div class="person-card" data-name="邦林">
+                <strong>邦林</strong> (好)
+                <div class="person-info">
+                    <span>生: 民国癸酉年又五月廿四 (1933年7月16日)</span>
+                    <span>卒: 民国戊子年十二月廿七 (1949年1月25日) 申时</span>
+                </div>
+                <div class="notes">
+                    配偶: 朱氏
+                    <br>备注: 考卒葬下塘岭
+                </div>
+            </div>
+            <div class="person-card" data-name="邦和">
+                <strong>邦和</strong> (次子)
+                <div class="person-info">
+                    <span>生: 民国辛巳年四月十三 (1941年4月13日) 辰时</span>
+                    <span>职务: 厂长</span>
+                    <span>职称: 工程师</span>
+                </div>
+                <div class="notes">
+                    配偶: 文昌文教符永花 (生于 1947年7月10日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国武"><strong>国武</strong> (男)</div>
+                </div>
+            </div>
+            <div class="person-card" data-name="邦定">
+                <strong>邦定</strong> (三子)
+                <div class="person-info">
+                    <span>生: 民国癸未年十二月廿八 (1944年1月23日) 辰时</span>
+                    <span>职称: 主任医师</span>
+                </div>
+                <div class="notes">
+                    配偶: 长坡李献莲 (生于 庚未年)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国刚"><strong>国刚</strong> (男)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国蕊"><strong>国蕊</strong> (女)</div>
+                </div>
+            </div>
+            <div class="person-card" data-name="邦安">
+                <strong>邦安</strong> (四子) (字剑锋)
+                <div class="person-info">
+                    <span>生: 民国丙戌年九月廿九 (1946年10月23日) 卯时</span>
+                    <span>职称: 中学校长, 高级教师</span>
+                </div>
+                <div class="notes">
+                    配偶: 森高岭莫壮鸾 (生于 1950年9月12日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国华"><strong>国华</strong> (男)</div>
+                </div>
+            </div>
+            <div class="person-card" data-name="忠清">
+                <strong>忠清</strong>
+                <div class="person-info">
+                    <span>生: 共和国辛丑年五月十三 (1961年6月25日)</span>
+                </div>
+                <div class="notes">
+                    配偶: 留客陈爱珍 (生于 1961年10月13日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国洋"><strong>国洋</strong> (男)</div>
+                </div>
+            </div>
+            <div class="person-card" data-name="华振">
+                <strong>华振</strong>
+                <div class="person-info">
+                    <span>生: 共和国己亥年三月初八 (1959年4月15日)</span>
+                </div>
+                <div class="notes">
+                    配偶: 江苏启东杨彩萍 (生于 1961年1月15日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="译赏"><strong>译赏</strong> (男)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="柔玮"><strong>柔玮</strong> (男)</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>经标之派</h2>
+            <div class="person-card" data-name="冯洪">
+                <strong>冯洪</strong> (三子)
+                <div class="person-info">
+                    <span>生: 共和国丙午年二月廿七 (1966年3月18日)</span>
+                </div>
+                <div class="notes">
+                    配偶: 古调覃茂琴 (生于 1976年7月25日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="雪银"><strong>雪银</strong> (女)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="钰惠"><strong>钰惠</strong> (女)</div>
+                </div>
+            </div>
+            <div class="person-card" data-name="邦得">
+                <strong>邦得</strong> (四子)
+                <div class="person-info">
+                    <span>生: 共和国戊申年十一月十八 (1969年1月6日)</span>
+                </div>
+                <div class="notes">
+                    配偶: 万泉陈村陈婉秋 (生于 1973年10月14日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国能"><strong>国能</strong> (男)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>经乙之派</h2>
+            <div class="person-card" data-name="邦问">
+                <strong>邦问</strong>
+                <div class="person-info">
+                    <span>生: 共和国庚戌年十二月三十 (1969年6月11日) 辰时</span>
+                </div>
+                <div class="notes">
+                    配偶: 加积朝标王春娇 (生于 1971年1月26日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国畅"><strong>国畅</strong> (男)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>经鸿之派</h2>
+            <div class="person-card" data-name="邦大">
+                <strong>邦大</strong>
+                <div class="person-info">
+                    <span>生: 共和国丁巳年六月十九 (1977年8月3日) 寅时</span>
+                </div>
+                <div class="notes">
+                    配偶: 万泉镇王天芳 (生于 1985年9月7日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="榆惠"><strong>榆惠</strong> (女)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>经强之派</h2>
+            <div class="person-card" data-name="邦任">
+                <strong>邦任</strong>
+                <div class="person-info">
+                    <span>生: 共和国辛丑年正月十九 (1961年3月5日) 巳时</span>
+                </div>
+                <div class="notes">
+                    配偶: 澄迈王爱玉 (生于 1962年1月1日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国亚"><strong>国亚</strong> (男)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国良"><strong>国良</strong> (男)</div>
+                </div>
+            </div>
+
+            <div class="person-card" data-name="邦全">
+                <strong>邦全</strong> (次子)
+                <div class="person-info">
+                    <span>生: 共和国辛丑年正月十九 (1961年3月5日) 巳时</span>
+                </div>
+                <div class="notes">
+                    配偶: 龙潭冯秀颜 (生于 1962年9月15日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国帆"><strong>国帆</strong> (男)</div>
+                </div>
+            </div>
+
+            <div class="person-card" data-name="海清">
+                <strong>海清</strong> (三子)
+                <div class="person-info">
+                    <span>生: 1964年7月26日 寅时</span>
+                </div>
+                <div class="notes">
+                    配偶: 东坡陈美珍 (生于 1965年10月23日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国鹏"><strong>国鹏</strong> (男)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>经伍之派</h2>
+            <div class="person-card" data-name="邦宁">
+                <strong>邦宁</strong> (好)
+                <div class="person-info">
+                    <span>生: 1951年</span>
+                    <span>卒: 1957年</span>
+                </div>
+                <div class="notes">
+                    配偶: 莫壮婷
+                </div>
+            </div>
+
+            <div class="person-card" data-name="邦秀">
+                <strong>邦秀</strong> (次子)
+                <div class="person-info">
+                    <span>生: 1962年8月30日</span>
+                    <span>卒: 1973年9月17日</span>
+                </div>
+                <div class="notes">
+                    配偶: 莫壮妃
+                </div>
+            </div>
+
+            <div class="person-card" data-name="邦燕">
+                <strong>邦燕</strong>
+                <div class="person-info">
+                    <span>生: 共和国甲辰年八月初十 (1964年9月15日)</span>
+                </div>
+                <div class="notes">
+                    配偶: 温泉王雪莲 (生于 1967年12月1日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国范"><strong>国范</strong> (男)</div>
+                </div>
+            </div>
+
+            <div class="person-card" data-name="邦强">
+                <strong>邦强</strong> (长子)
+                <div class="person-info">
+                    <span>生: 1991年10月10日</span>
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="邦胜">
+                <strong>邦胜</strong> (次子)
+                <div class="person-info">
+                    <span>生: 1995年9月19日</span>
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="邦亮">
+                <strong>邦亮</strong>
+                <div class="person-info">
+                    <span>生: 1997年11月16日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>经略之派</h2>
+            <div class="person-card" data-name="邦龙">
+                <strong>邦龙</strong>
+                <div class="person-info">
+                    <span>生: 2004年9月10日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>经云之派</h2>
+            <div class="person-card" data-name="邦伟">
+                <strong>邦伟</strong> (好)
+                <div class="person-info">
+                    <span>生: 1996年11月24日</span>
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="邦勇">
+                <strong>邦勇</strong> (次子)
+                <div class="person-info">
+                    <span>生: 1999年4月21日</span>
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="邦健">
+                <strong>邦健</strong> (三子)
+                <div class="person-info">
+                    <span>生: 2004年3月20日</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>经猷之派</h2>
+            <div class="person-card" data-name="邦煜">
+                <strong>邦煜</strong> (好)
+                <div class="person-info">
+                    <span>生: 民国己未年九月初三 (1919年10月26日) 亥时</span>
+                    <span>卒: 辛丑年三月初七 (1961年4月21日) 辰时</span>
+                </div>
+                <div class="notes">
+                    配偶: 卢业鸾 (生于 1919年8月17日, 卒于 1999年9月11日)
+                    <br>备注: 考妣均葬马来西亚坡勒申华人义山
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国栋"><strong>国栋</strong> (男)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国樑"><strong>国樑</strong> (男)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国强"><strong>国强</strong> (男)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国兴"><strong>国兴</strong> (男)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国鼎"><strong>国鼎</strong> (男)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国倡"><strong>国倡</strong> (男)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国棉"><strong>国棉</strong> (女)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国花"><strong>国花</strong> (女)</div>
+                </div>
+            </div>
+
+            <div class="person-card" data-name="邦达">
+                <strong>邦达</strong>
+                <div class="person-info">
+                    <span>生: 民国己丑年七月初二 (1925年8月20日)</span>
+                </div>
+                <div class="notes">
+                    配偶: 南港陈兴兰 (生于 1925年5月19日, 卒于 1972年11月25日)
+                    <br>备注: 妣葬马来西亚华人义山
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国其"><strong>国其</strong> (男)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国鸿"><strong>国鸿</strong> (男)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国忠"><strong>国忠</strong> (男)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国美"><strong>国美</strong> (女)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国莉"><strong>国莉</strong> (女)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国瑛"><strong>国瑛</strong> (女)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>经天之派</h2>
+            <div class="person-card" data-name="邦风">
+                <strong>邦风</strong>
+                <div class="person-info">
+                    <span>生: 民国己巳年十一月十九 (1929年12月19日) 卯时</span>
+                    <span>卒: 失</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>经拔之派</h2>
+            <div class="person-card" data-name="邦熊">
+                <strong>邦熊</strong>
+                <div class="person-info">
+                    <span>生: 民国乙丑年十一月廿七 (1926年1月1日) 辰时</span>
+                </div>
+                <div class="notes">
+                    配偶: 主岭何子姬 (生于 1925年7月5日)
+                    <br>续娶: 留客卢业敏 (生于 1926年10月11日)
+                    <br>嫡妣卒: 1963年3月25日 葬土密岭
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国明"><strong>国明</strong> (何出)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国耀"><strong>国耀</strong> (卢出)</div>
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="邦豹">
+                <strong>邦豹</strong> (次子)
+                <div class="person-info">
+                    <span>生: 民国癸酉年又五月十八 (1933年7月10日) 子时</span>
+                    <span>卒: 2005年 葬印尼美那多</span>
+                </div>
+                <div class="notes">
+                    配偶: 印尼侨生氏
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国兴"><strong>国兴</strong> (男)</div>
+                </div>
+            </div>
+
+            <div class="person-card" data-name="邦舜">
+                <strong>邦舜</strong> (三子)
+                <div class="person-info">
+                    <span>生: 民国乙亥年二月初二 (1935年3月6日) 巳时</span>
+                </div>
+                <div class="notes">
+                    聘: 留客蔡氏 (后退婚)
+                    <br>娶: 印尼侨生氏 (居印尼)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国清"><strong>国清</strong> (男)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国林"><strong>国林</strong> (男)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国创"><strong>国创</strong> (男)</div>
+                </div>
+            </div>
+
+            <div class="person-card" data-name="邦汉">
+                <strong>邦汉</strong> (四子)
+                <div class="person-info">
+                    <span>生: 庚未详</span>
+                </div>
+                <div class="notes">
+                    娶: 氏 (居印尼)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国禀"><strong>国禀</strong> (男)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国格"><strong>国格</strong> (男)</div>
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="邦孝">
+                <strong>邦孝</strong> (五子)
+                <div class="person-info">
+                    <span>出生于印尼，诸情未详</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>经柏之派</h2>
+            <div class="person-card" data-name="邦泽">
+                <strong>邦泽</strong>
+                <div class="person-info">
+                    <span>生: 共和国辛卯年九月初二 (1951年10月2日)</span>
+                </div>
+                <div class="notes">
+                    配偶: 莫村莫翠颜 (生于 1955年12月1日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国洲"><strong>国洲</strong> (男)</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>经位之派</h2>
+            <div class="person-card" data-name="邦贤">
+                <strong>邦贤</strong> (好)
+                <div class="person-info">
+                    <span>生: 1936年9月</span>
+                    <span>卒: 共和国壬寅年正月廿九 (1962年3月5日)</span>
+                </div>
+                <div class="notes">
+                    配偶: 高坡村卢氏 (生于 1936年2月26日)
+                    <br>备注: 考葬东岭。1972年卢氏改嫁，国文随母入川教村养，改名陶文文。
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国文">
+                        <strong>国文</strong> (男)
+                        <div class="notes">
+                            改名陶文文
+                            <br>子女: 陶毅, 陶锐
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="邦益">
+                <strong>邦益</strong>
+                <div class="person-info">
+                    <span>生: 共和国丙申年二月廿三 (1956年4月3日)</span>
+                </div>
+                <div class="notes">
+                    配偶: 琼山俞美兰 (生于 1962年1月28日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国旺"><strong>国旺</strong> (男)</div>
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="邦义">
+                <strong>邦义</strong> (子)
+                <div class="person-info">
+                    <span>生: 共和国辛丑年十月初三 (1961年11月10日)</span>
+                </div>
+                <div class="notes">
+                    配偶: 屯昌坡心李芬 (生于 1972年5月20日)
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>经南之派</h2>
+            <div class="person-card" data-name="邦冠">
+                <strong>邦冠</strong> (长子)
+                <div class="person-info">
+                    <span>生: 共和国戊戌年九月初六 (1958年10月18日)</span>
+                    <span>学历: 大专</span>
+                    <span>职称: 助工</span>
+                </div>
+                <div class="notes">
+                    配偶: 北山莫泽玉 (生于 1961年12月7日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国宝"><strong>国宝</strong> (男)</div>
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="邦兴">
+                <strong>邦兴</strong> (次子)
+                <div class="person-info">
+                    <span>生: 共和国乙亥年十一月十九 (1959年12月18日)</span>
+                </div>
+                <div class="notes">
+                    配偶: 临高加来农场黄少萍 (生于 1966年4月17日)
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>经林之派</h2>
+            <div class="person-card" data-name="邦樑">
+                <strong>邦樑</strong> (长好)
+                <div class="person-info">
+                    <span>生: 民国癸酉年五月二十 (1933年6月12日) 丑时</span>
+                </div>
+                <div class="notes">
+                    配偶: 乐会书田梁启鸾 (生于 庚未祥)
+                    <br>子女: 国财 (居印尼不考)
+                </div>
+            </div>
+
+            <div class="person-card" data-name="邦栋">
+                <strong>邦栋</strong> (次子)
+                <div class="person-info">
+                    <span>生: 民国辛巳年月十一 (1941年) 巳时</span>
+                    <span>职称: 教师</span>
+                </div>
+                <div class="notes">
+                    配偶: 博鳌田埇王辉美 (生于 1942年3月16日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国雄"><strong>国雄</strong> (男)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国强"><strong>国强</strong> (男)</div>
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="邦松">
+                <strong>邦松</strong> (三子)
+                <div class="person-info">
+                    <span>生: 民国癸未年十月廿七 (1943年11月24日) 亥时</span>
+                </div>
+                <div class="notes">
+                    配偶: 留客氏 (生于 1946年6月3日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国奋"><strong>国奋</strong> (男)</div>
+                </div>
+            </div>
+
+            <div class="person-card" data-name="邦杰">
+                <strong>邦杰</strong> (四子)
+                <div class="person-info">
+                    <span>生: 共和国庚寅年四月初八 (1950年5月24日) 酉时</span>
+                </div>
+                <div class="notes">
+                    配偶: 东海王杏芳 (生于 1957年10月19日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国辉"><strong>国辉</strong> (男)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国平"><strong>国平</strong> (男)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>经海之派</h2>
+            <div class="person-card" data-name="邦煌">
+                <strong>邦煌</strong> (长子)
+                <div class="person-info">
+                    <span>生: 共和国辛卯年八月初十 (1951年9月10日)</span>
+                </div>
+                <div class="notes">
+                    配偶: 下坡卢家琴 (生于 1954年4月10日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="冯健"><strong>冯健</strong> (男)</div>
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="邦招">
+                <strong>邦招</strong> (次子)
+                <div class="person-info">
+                    <span>生: 1956年8月25日 丑时</span>
+                </div>
+                <div class="notes">
+                    配偶: 乐城陈娟 (生于 1963年9月15日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国伟"><strong>国伟</strong> (男)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>经焕之派</h2>
+            <div class="person-card" data-name="邦敏">
+                <strong>邦敏</strong> (好)
+                <div class="person-info">
+                    <span>生: 共和国辛丑年十二月初九 (1962年1月14日) 辰时</span>
+                </div>
+                <div class="notes">
+                    配偶: 广东廉江钟少美 (生于 1962年1月12日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国深"><strong>国深</strong> (男)</div>
+                </div>
+            </div>
+
+            <div class="person-card" data-name="邦卫">
+                <strong>邦卫</strong> (次子)
+                <div class="person-info">
+                    <span>生: 1962年</span>
+                </div>
+                <div class="notes">
+                    配偶: 陈村黄培霞 (生于 1962年)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国玉"><strong>国玉</strong> (女)</div>
+                </div>
+            </div>
+
+            <div class="person-card" data-name="邦强">
+                <strong>邦强</strong> (三子)
+                <div class="person-info">
+                    <span>生: 1965年3月18日 丑时</span>
+                </div>
+                <div class="notes">
+                    配偶: 阳江欧村庞玉花 (生于 1963年8月24日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国宾"><strong>国宾</strong> (男)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>经亮之派</h2>
+            <div class="person-card" data-name="义枢">
+                <strong>义枢</strong>
+                <div class="person-info">
+                    <span>生: 共和国丁亥年十二月十四 (2008年1月21日) 辰时</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section-title">(三十)三支钰公之派 - 第十三世</div>
+        <div class="branch">
+            <div class="person-card" data-name="邦权">
+                <strong>邦权</strong>
+                <div class="person-info">
+                    <span>生: 共和国辛未年三月十四 (1991年4月28日) 亥时</span>
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="邦泰">
+                <strong>邦泰</strong>
+                <div class="person-info">
+                    <span>生: 共和国丁酉年又八月十五 (1957年10月8日) 卯时</span>
+                    <span>学历: 高中</span>
+                </div>
+                <div class="notes">
+                    配偶: 李村李振莲 (生于 1957年8月11日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国帅"><strong>国帅</strong> (男)</div>
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="邦奋">
+                <strong>邦奋</strong> (次子)
+                <div class="person-info">
+                    <span>生: 共和国壬寅年四月十七 (1962年5月20日) 卯时</span>
+                    <span>学历: 大学 (广州体院)</span>
+                </div>
+                <div class="notes">
+                    配偶: 加积文坡陈小丽 (生于 1962年7月14日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国彦"><strong>国彦</strong> (男)</div>
+                </div>
+            </div>
+
+            <div class="person-card" data-name="邦洪">
+                <strong>邦洪</strong>
+                <div class="person-info">
+                    <span>生: 共和国辛丑年正月二十 (1961年3月6日)</span>
+                    <span>学历: 高中</span>
+                </div>
+                <div class="notes">
+                    配偶: 澄迈王春妹 (生于 1964年8月14日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="婷琳"><strong>婷琳</strong> (女)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="浩丽"><strong>浩丽</strong> (女)</div>
+                </div>
+            </div>
+
+            <div class="person-card" data-name="邦发">
+                <strong>邦发</strong>
+                <div class="person-info">
+                    <span>生: 民国戊子年二月初二 (1948年3月12日)</span>
+                    <span>学历: 高中</span>
+                </div>
+                <div class="notes">
+                    配偶: 新市莫炳波 (生于 1953年8月13日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="冯聪"><strong>冯聪</strong> (男)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>经福之派</h2>
+            <div class="person-card" data-name="海珍">
+                <strong>海珍</strong> (长女)
+                <div class="person-info">
+                    <span>生: 共和国庚申年二月初十 (1980年3月26日)</span>
+                    <span>学历: 初中</span>
+                </div>
+                <div class="notes">
+                    配偶: 立岭文容梁学东
+                </div>
+            </div>
+
+            <div class="person-card" data-name="海珠">
+                <strong>海珠</strong> (次女)
+                <div class="person-info">
+                    <span>生: 共和国辛酉年八月十六 (1981年9月13日)</span>
+                    <span>学历: 初中</span>
+                </div>
+                <div class="notes">
+                    配偶: 乐东黄流赤命村
+                </div>
+            </div>
+
+            <div class="person-card" data-name="邦雄">
+                <strong>邦雄</strong> (之子)
+                <div class="person-info">
+                    <span>生: 共和国癸亥年十月十五 (1985年11月19日)</span>
+                    <span>学历: 初中</span>
+                </div>
+                <div class="notes">
+                    配偶: 东沃林天英 (生于 1982年7月18日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国清"><strong>国清</strong> (男)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>经创之派</h2>
+            <div class="person-card" data-name="国雄">
+                <strong>国雄</strong>
+                <div class="person-info">
+                    <span>生: 共和国丁未年六月廿一 (1967年7月28日)</span>
+                    <span>学历: 高中</span>
+                </div>
+                <div class="notes">
+                    配偶: 长坡黄亚清 (生于 1968年11月24日)
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>经乐之派</h2>
+            <div class="person-card" data-name="海英">
+                <strong>海英</strong> (之女)
+                <div class="person-info">
+                    <span>生: 共和国辛酉年四月初六 (1981年5月9日)</span>
+                    <span>学历: 初中</span>
+                </div>
+                <div class="notes">
+                    备注: 适大陆人居三亚
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="邦云">
+                <strong>邦云</strong>
+                <div class="person-info">
+                    <span>生: 共和国丁卯年又六月廿二 (1987年8月16日)</span>
+                </div>
+                <div class="notes">
+                    配偶: 山根多扶村龙雪丽 (生于 1988年6月28日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="彩蝶"><strong>彩蝶</strong> (女)</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>经秀之派</h2>
+            <div class="person-card" data-name="海艳">
+                <strong>海艳</strong> (长女)
+                <div class="person-info">
+                    <span>生: 共和国乙亥年六月廿六 (1995年7月23日)</span>
+                </div>
+            </div>
+            <div class="person-card" data-name="海清">
+                <strong>海清</strong> (次女)
+                <div class="person-info">
+                    <span>生: 共和国丙子年八月初二 (1996年9月14日)</span>
+                </div>
+            </div>
+            <div class="person-card" data-name="冯师">
+                <strong>冯师</strong> (子)
+                <div class="person-info">
+                    <span>生: 共和国庚辰年九月廿一 (2000年10月17日)</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>经乐之派</h2>
+            <div class="person-card" data-name="邦文">
+                <strong>邦文</strong> (长子)
+                <div class="person-info">
+                    <span>生: 共和国甲子年八月初六 (1984年9月1日)</span>
+                    <span>学历: 初中</span>
+                </div>
+                <div class="notes">
+                    配偶: 和乐单坡村黄小丽 (生于 1984年11月13日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="盈盈"><strong>盈盈</strong> (女)</div>
+                </div>
+                <div class="child-node">
+                    <div class="person-card" data-name="国力"><strong>国力</strong> (男)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-title">(三十一)四支陞公之派 - 第十三世</div>
+    <div class="family-tree">
+        <div class="branch">
+            <div class="person-card" data-name="海燕">
+                <strong>海燕</strong> (长女)
+                <div class="person-info">
+                    <span>生: 共和国甲寅四月初六 (1974年4月27日)</span>
+                    <span>学历: 初中</span>
+                </div>
+                <div class="notes">
+                    配偶: 文昌县黄土村陈敏
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="邦星">
+                <strong>邦星</strong>
+                <div class="person-info">
+                    <span>生: 共和国丁己年九月二十 (1977年11月1日)</span>
+                    <span>学历: 初中</span>
+                </div>
+                <div class="notes">
+                    配偶: 和乐亚坡村李琼美 (生于 1982年3月24日)
+                </div>
+            </div>
+
+            <div class="person-card" data-name="邦亮">
+                <strong>邦亮</strong>
+                <div class="person-info">
+                    <span>生: 共和国甲子年四月三十 (1984年5月30日)</span>
+                    <span>学历: 中技</span>
+                </div>
+                <div class="notes">
+                    配偶: 和乐流川村李美月 (生于 1988年3月29日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="曼妮"><strong>曼妮</strong> (女)</div>
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="邦明">
+                <strong>邦明</strong> (继孙)
+                <div class="person-info">
+                    <span>生: 共和国乙丑年五月十九 (1985年7月6日)</span>
+                </div>
+                <div class="notes">
+                    配偶: 和乐六连四队郭小英 (生于 1985年8月29日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="小叶"><strong>小叶</strong> (女)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section-title">(三十二)长支梧公之派 - 第十四世</div>
+    <div class="family-tree">
+        <div class="branch">
+            <h2 style="margin-top:0;">邦武之子</h2>
+            <div class="person-card" data-name="冯武">
+                <strong>冯武</strong>
+                <div class="person-info">
+                    <span>生: 共和国戊戌年九月廿三 (1970年10月22日) 戊时</span>
+                    <span>学历: 中国地质大学毕业</span>
+                    <span>职称: 经理, 工程师</span>
+                </div>
+                <div class="notes">
+                    配偶: 湖北恩施刘萍 (生于 1971年)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="迪娜"><strong>迪娜</strong> (女)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2 style="margin-top:0;">邦刚之子</h2>
+            <div class="person-card" data-name="冯刚">
+                <strong>冯刚</strong>
+                <div class="person-info">
+                    <span>生: 1974年9月19日</span>
+                    <span>学历: 重大商学院毕业</span>
+                    <span>职称: 经理, 会计师</span>
+                </div>
+                <div class="notes">
+                    配偶: 万宁苏恩惠 (生于 未详)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="冯轩"><strong>冯轩</strong> (男)</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">邦安之子</h2>
+            <div class="person-card" data-name="国华">
+                <strong>国华</strong>
+                <div class="person-info">
+                    <span>生: 1979年11月4日</span>
+                    <span>学历: 哈尔滨工业大学毕业</span>
+                    <span>职称: 工程师</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">忠清之子</h2>
+            <div class="person-card" data-name="国洋">
+                <strong>国洋</strong>
+                <div class="person-info">
+                    <span>生: 1984年4月21日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">李书长子</h2>
+            <div class="person-card" data-name="译赏">
+                <strong>译赏</strong>
+                <div class="person-info">
+                    <span>生: 1984年6月9日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">李书次子</h2>
+            <div class="person-card" data-name="柔玮">
+                <strong>柔玮</strong>
+                <div class="person-info">
+                    <span>生: 1996年4月10日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">华振之子</h2>
+            <div class="person-card" data-name="星辉">
+                <strong>星辉</strong>
+                <div class="person-info">
+                    <span>生: 2003年9月9日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">邦洪长女</h2>
+            <div class="person-card" data-name="雪银">
+                <strong>雪银</strong>
+                <div class="person-info">
+                    <span>生: 1997年3月29日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">邦洪次女</h2>
+            <div class="person-card" data-name="钰惠">
+                <strong>钰惠</strong>
+                <div class="person-info">
+                    <span>生: 2006年2月21日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">邦得之子</h2>
+            <div class="person-card" data-name="国能">
+                <strong>国能</strong>
+                <div class="person-info">
+                    <span>生: 1999年11月6日</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2 style="margin-top:0;">邦问之子</h2>
+            <div class="person-card" data-name="国畅">
+                <strong>国畅</strong>
+                <div class="person-info">
+                    <span>生: 2005年7月8日 申时</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">邦任长子</h2>
+            <div class="person-card" data-name="国亚">
+                <strong>国亚</strong>
+                <div class="person-info">
+                    <span>生: 1985年8月29日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">邦任次子</h2>
+            <div class="person-card" data-name="国良">
+                <strong>国良</strong>
+                <div class="person-info">
+                    <span>生: 1990年5月28日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">邦全之子</h2>
+            <div class="person-card" data-name="国帆">
+                <strong>国帆</strong>
+                <div class="person-info">
+                    <span>生: 1988年12月25日</span>
+                </div>
+                <div class="notes">
+                    配偶: 王文元 (生于 1990年8月8日)
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">海清之子</h2>
+            <div class="person-card" data-name="国鹏">
+                <strong>国鹏</strong>
+                <div class="person-info">
+                    <span>生: 1990年5月28日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">邦燕之子</h2>
+            <div class="person-card" data-name="国范">
+                <strong>国范</strong>
+                <div class="person-info">
+                    <span>生: 1993年2月16日</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>邦煜后代</h2>
+            <div class="person-card" data-name="国栋">
+                <strong>国栋</strong>
+                <div class="person-info">
+                    <span>生: 1941年10月1日 申时</span>
+                    <span>卒: 1945年5月24日</span>
+                </div>
+                <div class="notes">
+                    配偶: 冯氏 (葬马来西亚坡勒申华人义山)
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="国樑">
+                <strong>国樑</strong>
+                <div class="person-info">
+                    <span>生: 1944年5月20日 未时</span>
+                </div>
+                <div class="notes">
+                    配偶: 加积全月仙 (生于 1945年8月19日)
+                    <br>子女: 家荣, 丽婷, 桂兰
+                </div>
+            </div>
+
+            <div class="person-card" data-name="国强">
+                <strong>国强</strong>
+                <div class="person-info">
+                    <span>生: 1945年8月20日 辰时</span>
+                </div>
+                <div class="notes">
+                    配偶: 广东高州赖八妹 (生于 1951年3月18日)
+                    <br>子女: 家龙, 家辉, 家贵, 女慧萍
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="国兴">
+                <strong>国兴</strong>
+                <div class="person-info">
+                    <span>生: 1947年3月30日 亥时</span>
+                </div>
+                <div class="notes">
+                    配偶: 琼山林春菊 (生于 1949年12月19日)
+                    <br>子女: 家华, 美花, 薇莲
+                </div>
+            </div>
+
+            <div class="person-card" data-name="国鼎">
+                <strong>国鼎</strong>
+                <div class="person-info">
+                    <span>生: 1948年10月30日 亥时</span>
+                    <span>职称: 工程师</span>
+                </div>
+                <div class="notes">
+                    配偶: 南岸村李连容 (生于 1949年11月22日)
+                    <br>子女: 家雄, 倩玉
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="国昌">
+                <strong>国昌</strong> (六子)
+                <div class="person-info">
+                    <span>生: 1957年3月9日 丑时</span>
+                    <span>职称: 集团营业部经理</span>
+                </div>
+                <div class="notes">
+                    配偶: 广东客家黄露娟 (生于 1962年8月28日)
+                    <br>子女: 劲深, 劲翰, 女芷宜
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="国棉">
+                <strong>国棉</strong> (长女)
+                <div class="person-info">
+                    <span>生: 1950年6月28日 辰时</span>
+                </div>
+                <div class="notes">
+                    配偶: 福建人林祥裕 (生于 1950年)
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="国花">
+                <strong>国花</strong> (次女)
+                <div class="person-info">
+                    <span>生: 1951年10月8日 丑时</span>
+                    <span>职称: 电子厂主任</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>邦达后代</h2>
+            <div class="person-card" data-name="国其">
+                <strong>国其</strong>
+                <div class="person-info">
+                    <span>生: 1948年4月7日 巳时</span>
+                </div>
+                <div class="notes">
+                    配偶: 文昌林明玲 (生于 1953年1月7日)
+                    <br>子女: 丽云, 丽冰, 丽慧
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="国鸿">
+                <strong>国鸿</strong>
+                <div class="person-info">
+                    <span>生: 1957年12月18日 子时</span>
+                </div>
+                <div class="notes">
+                    配偶: 潮州周亚珠 (生于 1954年1月20日)
+                    <br>子女: 家富, 女凯雯
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="国忠">
+                <strong>国忠</strong>
+                <div class="person-info">
+                    <span>生: 1960年3月13日</span>
+                </div>
+                <div class="notes">
+                    配偶: 广东人李秀凤 (生于 1964年12月11日)
+                    <br>子女: 家豪, 家俊, 女薇霞
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="国美">
+                <strong>国美</strong> (长女)
+                <div class="person-info">
+                    <span>生: 1954年8月24日 戊时</span>
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="国莉">
+                <strong>国莉</strong> (次女)
+                <div class="person-info">
+                    <span>生: 1956年7月24日</span>
+                    <span>卒: 2006年12月25日</span>
+                </div>
+                <div class="notes">
+                    配偶: 北山陈宝源 (葬马来西亚吉隆坡)
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="国瑛">
+                <strong>国瑛</strong> (三女)
+                <div class="person-info">
+                    <span>生: 1962年5月31日</span>
+                </div>
+                <div class="notes">
+                    配偶: 宝剑村何君其 (生于 1961年4月4日)
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>邦熊后代</h2>
+            <div class="person-card" data-name="国明">
+                <strong>国明</strong>
+                <div class="person-info">
+                    <span>生: 1951年8月15日 卯时</span>
+                </div>
+                <div class="notes">
+                    配偶: 森高岭莫壮茹 (生于 1951年11月3日)
+                    <br>子女: 家钧, 家锐
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="国耀">
+                <strong>国耀</strong>
+                <div class="person-info">
+                    <span>生: 1965年2月8日 子时</span>
+                </div>
+                <div class="notes">
+                    配偶: 褒长路卢少英 (生于 1973年5月28日)
+                    <br>子女: 家楠
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>邦约之子</h2>
+            <div class="person-card" data-name="国兴">
+                <strong>国兴</strong>
+                <div class="person-info">
+                    <span>居印尼，生庚未详</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>邦舜后代</h2>
+            <div class="person-card" data-name="国清">
+                <strong>国清</strong>
+                <div class="person-info">
+                    <span>生: 1958年8月30日</span>
+                    <span>居印尼</span>
+                </div>
+                <div class="notes">
+                    配偶: 氏
+                    <br>子女: 男家贵
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="国林">
+                <strong>国林</strong>
+                <div class="person-info">
+                    <span>生庚情未详</span>
+                    <span>居印尼</span>
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="国创">
+                <strong>国创</strong>
+                <div class="person-info">
+                    <span>生庚情未详</span>
+                    <span>居印尼</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>邦汉后代</h2>
+            <div class="person-card" data-name="国禀">
+                <strong>国禀</strong>
+                <div class="person-info">
+                    <span>生庚情未详</span>
+                    <span>居印尼</span>
+                </div>
+            </div>
+            <div class="person-card" data-name="国格">
+                <strong>国格</strong>
+                <div class="person-info">
+                    <span>生庚情未详</span>
+                    <span>居印尼</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>邦泽后代</h2>
+            <div class="person-card" data-name="国洲">
+                <strong>国洲</strong>
+                <div class="person-info">
+                    <span>生: 1976年7月25日 巳时</span>
+                    <span>学历: 大学</span>
+                </div>
+                <div class="notes">
+                    配偶: 陈向红 (生于 1988年1月5日)
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>邦益后代</h2>
+            <div class="person-card" data-name="国旺">
+                <strong>国旺</strong>
+                <div class="person-info">
+                    <span>生: 1993年7月8日 亥时</span>
+                </div>
+                <div class="notes">
+                    字: 冯军
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>邦冠后代</h2>
+            <div class="person-card" data-name="国宝">
+                <strong>国宝</strong>
+                <div class="person-info">
+                    <span>生: 1985年11月17日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>邦兴后代</h2>
+            <div class="person-card" data-name="国臣">
+                <strong>国臣</strong>
+                <div class="person-info">
+                    <span>生: 1994年12月20日</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>邦栋后代</h2>
+            <div class="person-card" data-name="国雄">
+                <strong>国雄</strong>
+                <div class="person-info">
+                    <span>生: 1969年3月27日</span>
+                    <span>职称: 医务人员</span>
+                </div>
+                <div class="notes">
+                    配偶: 加积桥头雷玲 (生于 1976年10月7日)
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="国强">
+                <strong>国强</strong>
+                <div class="person-info">
+                    <span>生: 1971年8月16日</span>
+                    <span>职称: 技术员</span>
+                </div>
+                <div class="notes">
+                    配偶: 广西柳州张梅 (生于 1972年12月31日)
+                    <br>备注: 改造
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>邦松后代</h2>
+            <div class="person-card" data-name="国奋">
+                <strong>国奋</strong>
+                <div class="person-info">
+                    <span>生: 1976年12月11日</span>
+                </div>
+                <div class="notes">
+                    配偶: 黄艳艳 (生于 1977年6月25日)
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>邦杰后代</h2>
+            <div class="person-card" data-name="国辉">
+                <strong>国辉</strong>
+                <div class="person-info">
+                    <span>生: 1978年9月10日 (幼亡)</span>
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="国平">
+                <strong>国平</strong>
+                <div class="person-info">
+                    <span>生: 1981年9月29日</span>
+                </div>
+                <div class="notes">
+                    配偶: 博鳌大路坡王杏容 (生于 1984年3月25日)
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>邦煌后代</h2>
+            <div class="person-card" data-name="冯健">
+                <strong>冯健</strong>
+                <div class="person-info">
+                    <span>生: 1975年1月16日</span>
+                </div>
+                <div class="notes">
+                    配偶: 中山黄丽霞 (生于 1975年12月16日)
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>邦招后代</h2>
+            <div class="person-card" data-name="苗康">
+                <strong>苗康</strong>
+                <div class="person-info">
+                    <span>生: 1980年5月20日</span>
+                </div>
+                <div class="notes">
+                    配偶: 中原张春燕 (生于 1989年11月19日)
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>邦敏后代</h2>
+            <div class="person-card" data-name="国伟">
+                <strong>国伟</strong>
+                <div class="person-info">
+                    <span>生: 1987年6月17日</span>
+                </div>
+            </div>
+            <div class="person-card" data-name="国深">
+                <strong>国深</strong>
+                <div class="person-info">
+                    <span>生: 1991年5月15日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>邦卫后代</h2>
+            <div class="person-card" data-name="国玉">
+                <strong>国玉</strong>
+                <div class="person-info">
+                    <span>生: 1988年8月12日</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>经福后代</h2>
+            <div class="person-card" data-name="国清">
+                <strong>国清</strong>
+                <div class="person-info">
+                    <span>生: 1982年7月18日</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>邦泰后代</h2>
+            <div class="person-card" data-name="国师">
+                <strong>国师</strong>
+                <div class="person-info">
+                    <span>生: 1978年9月26日 卯时</span>
+                    <span>学历: 初中</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2>邦奋后代</h2>
+            <div class="person-card" data-name="国彦">
+                <strong>国彦</strong>
+                <div class="person-info">
+                    <span>生: 1984年10月11日 子时</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>邦洪后代</h2>
+            <div class="person-card" data-name="婷琳">
+                <strong>婷琳</strong>
+                <div class="person-info">
+                    <span>生: 1988年7月8日</span>
+                </div>
+            </div>
+            <div class="person-card" data-name="浩丽">
+                <strong>浩丽</strong>
+                <div class="person-info">
+                    <span>生: 1995年9月17日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>邦发后代</h2>
+            <div class="person-card" data-name="冯聪">
+                <strong>冯聪</strong>
+                <div class="person-info">
+                    <span>生: 1982年12月22日</span>
+                    <span>学历: 初中</span>
+                </div>
+                <div class="notes">
+                    配偶: 琼海周珊 (生于 1986年7月24日)
+                    <br>学历: 中专
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>邦权后代</h2>
+            <div class="person-card" data-name="国鹏">
+                <strong>国鹏</strong>
+                <div class="person-info">
+                    <span>生: 2000年1月1日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>邦星后代</h2>
+            <div class="person-card" data-name="国强">
+                <strong>国强</strong>
+                <div class="person-info">
+                    <span>生: 1988年1月12日</span>
+                </div>
+            </div>
+            
+            <div class="person-card" data-name="国良">
+                <strong>国良</strong>
+                <div class="person-info">
+                    <span>生: 1987年1月19日</span>
+                </div>
+                <div class="notes">
+                    配偶: 龙茂李雨珍 (生于 1989年12月25日)
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>邦亮后代</h2>
+            <div class="person-card" data-name="国吉">
+                <strong>国吉</strong>
+                <div class="person-info">
+                    <span>生: 1989年1月30日</span>
+                    <span>学历: 大专</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2>邦明后代</h2>
+            <div class="person-card" data-name="国宁">
+                <strong>国宁</strong>
+                <div class="person-info">
+                    <span>生: 2005年10月6日</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section-title">(三十三)三支钰公之派 - 第十四世</div>
+    <div class="family-tree">
+        <div class="branch">
+            <h2 style="margin-top:0;">邦泰之子</h2>
+            <div class="person-card" data-name="国师">
+                <strong>国师</strong>
+                <div class="person-info">
+                    <span>生: 1978年9月26日 卯时</span>
+                    <span>学历: 初中</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">邦奋之子</h2>
+            <div class="person-card" data-name="国彦">
+                <strong>国彦</strong>
+                <div class="person-info">
+                    <span>生: 1984年10月11日 子时</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">邦洪长女</h2>
+            <div class="person-card" data-name="雪银">
+                <strong>雪银</strong>
+                <div class="person-info">
+                    <span>生: 1997年3月29日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">邦洪次女</h2>
+            <div class="person-card" data-name="钰惠">
+                <strong>钰惠</strong>
+                <div class="person-info">
+                    <span>生: 2006年2月21日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">邦奋之子</h2>
+            <div class="person-card" data-name="国彦">
+                <strong>国彦</strong>
+                <div class="person-info">
+                    <span>生: 1984年10月11日 子时</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section-title">(三十四)四支陞公之派 - 第十四世</div>
+    <div class="family-tree">
+        <div class="branch">
+            <h2 style="margin-top:0;">邦星长女</h2>
+            <div class="person-card" data-name="国玉">
+                <strong>国玉</strong>
+                <div class="person-info">
+                    <span>生: 2004年6月8日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">邦星次女</h2>
+            <div class="person-card" data-name="婷婷">
+                <strong>婷婷</strong>
+                <div class="person-info">
+                    <span>生: 2005年9月3日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">邦亮之女</h2>
+            <div class="person-card" data-name="曼妮">
+                <strong>曼妮</strong>
+                <div class="person-info">
+                    <span>生: 2007年5月22日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">邦亮次女</h2>
+            <div class="person-card" data-name="曼妮">
+                <strong>曼妮</strong>
+                <div class="person-info">
+                    <span>生: 2007年5月22日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">邦明之子</h2>
+            <div class="person-card" data-name="小叶">
+                <strong>小叶</strong>
+                <div class="person-info">
+                    <span>生: 2006年1月6日</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section-title">(三十五)长支梧公之派 - 第十五世</div>
+    <div class="family-tree">
+        <div class="branch">
+            <h2 style="margin-top:0;">国武之女</h2>
+            <div class="person-card" data-name="迪娜">
+                <strong>迪娜</strong>
+                <div class="person-info">
+                    <span>生: 1998年3月21日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国刚之子</h2>
+            <div class="person-card" data-name="冯轩">
+                <strong>冯轩</strong>
+                <div class="person-info">
+                    <span>生: 2005年8月8日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国帆之子</h2>
+            <div class="person-card" data-name="冯欢">
+                <strong>冯欢</strong>
+                <div class="person-info">
+                    <span>生: 2008年7月13日 卯时</span>
+                </div>
+                <div class="notes">
+                    配偶: 家翠 (生于 1970年2月5日)
+                    <br>子女: 林金生 (生于 1966年9月9日)
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国樑次女</h2>
+            <div class="person-card" data-name="丽婷">
+                <strong>丽婷</strong>
+                <div class="person-info">
+                    <span>生: 1971年11月26日 申时</span>
+                    <span>职称: 银行高级职员</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国樑三女</h2>
+            <div class="person-card" data-name="桂兰">
+                <strong>桂兰</strong>
+                <div class="person-info">
+                    <span>生: 1974年7月22日 寅时</span>
+                    <span>卒: 1988年11月25日</span>
+                </div>
+                <div class="notes">
+                    备注: 葬马来西亚华人义山
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国樑之子</h2>
+            <div class="person-card" data-name="家荣">
+                <strong>家荣</strong>
+                <div class="person-info">
+                    <span>生: 1976年10月17日 丑时</span>
+                    <span>职称: 建筑师</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国强长子</h2>
+            <div class="person-card" data-name="家龙">
+                <strong>家龙</strong>
+                <div class="person-info">
+                    <span>生: 1971年10月5日 午时</span>
+                </div>
+                <div class="notes">
+                    配偶: 文昌王玉珍 (生于 1971年6月11日)
+                    <br>子女: 男修塬, 芊颖，彩维, 芊熹
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国强次子</h2>
+            <div class="person-card" data-name="家辉">
+                <strong>家辉</strong>
+                <div class="person-info">
+                    <span>生: 1973年1月3日 戌时</span>
+                </div>
+                <div class="notes">
+                    配偶: 福建林美黛 (生于 1973年10月3日)
+                    <br>子女: 雅瑄, 琬渲, 梓瑄
+                </div>
+            </div>
+        </div>
+
+        <div class="branch">
+            <h2 style="margin-top:0;">国强之女</h2>
+            <div class="person-card" data-name="慧萍">
+                <strong>慧萍</strong>
+                <div class="person-info">
+                    <span>生: 1978年8月12日 晚上7时58分</span>
+                </div>
+                <div class="notes">
+                    配偶: 福建郑耀明 (生于 1978年3月13日)
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国强三子</h2>
+            <div class="person-card" data-name="家贵">
+                <strong>家贵</strong>
+                <div class="person-info">
+                    <span>生: 1987年3月18日 辰时</span>
+                </div>
+                <div class="notes">
+                    配偶: 福建王宝婷 (生于 1995年12月10日)
+                     <br>子女: 修X
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国兴长女</h2>
+            <div class="person-card" data-name="美花">
+                <strong>美花</strong>
+                <div class="person-info">
+                    <span>生: 1974年5月9日 巳时</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国兴次女</h2>
+            <div class="person-card" data-name="薇莲">
+                <strong>薇莲</strong>
+                <div class="person-info">
+                    <span>生: 1975年9月30日</span>
+                    <span>职称: 会计师</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国兴之子</h2>
+            <div class="person-card" data-name="家华">
+                <strong>家华</strong>
+                <div class="person-info">
+                    <span>生: 1978年7月19日 亥时</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国鼎长子</h2>
+            <div class="person-card" data-name="家彪">
+                <strong>家彪</strong>
+                <div class="person-info">
+                    <span>生: 1974年4月15日</span>
+                    <span>职称: 电机工程师</span>
+                </div>
+                <div class="notes">
+                    配偶: 福建陈爱玲 (生于 1974年4月27日)
+                    <br>子女: 女恩琦, 恩璇
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国鼎次子</h2>
+            <div class="person-card" data-name="家雄">
+                <strong>家雄</strong>
+                <div class="person-info">
+                    <span>生: 1976年8月11日 辰时</span>
+                    <span>职称: 执行主任</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国鼎女</h2>
+            <div class="person-card" data-name="倩玉">
+                <strong>倩玉</strong>
+                <div class="person-info">
+                    <span>生: 1983年9月19日</span>
+                    <span>职称: 电气工程师</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国倡长子</h2>
+            <div class="person-card" data-name="劲深">
+                <strong>劲深</strong>
+                <div class="person-info">
+                    <span>生: 1988年8月3日</span>
+                    <span>学历: 大学</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国倡次子</h2>
+            <div class="person-card" data-name="劲翰">
+                <strong>劲翰</strong>
+                <div class="person-info">
+                    <span>生: 1993年11月9日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国倡之女</h2>
+            <div class="person-card" data-name="芷宜">
+                <strong>芷宜</strong>
+                <div class="person-info">
+                    <span>生: 1991年8月21日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国其长女</h2>
+            <div class="person-card" data-name="丽云">
+                <strong>丽云</strong>
+                <div class="person-info">
+                    <span>生: 1977年11月28日 巳时</span>
+                    <span>学历: 大学</span>
+                    <span>职称: 会计师</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国其次女</h2>
+            <div class="person-card" data-name="丽冰">
+                <strong>丽冰</strong>
+                <div class="person-info">
+                    <span>生: 1982年5月10日 午时</span>
+                    <span>学历: 大学酒店管理</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国其三女</h2>
+            <div class="person-card" data-name="丽慧">
+                <strong>丽慧</strong>
+                <div class="person-info">
+                    <span>生: 1987年1月17日 午时</span>
+                    <span>学历: 大学</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国鸿之子</h2>
+            <div class="person-card" data-name="家富">
+                <strong>家富</strong>
+                <div class="person-info">
+                    <span>生: 1982年12月8日</span>
+                    <span>学历: 未时大学</span>
+                    <span>职称: 工程师</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国忠长子</h2>
+            <div class="person-card" data-name="家豪">
+                <strong>家豪</strong>
+                <div class="person-info">
+                    <span>生: 1992年10月21日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国忠次子</h2>
+            <div class="person-card" data-name="家俊">
+                <strong>家俊</strong>
+                <div class="person-info">
+                    <span>生: 1995年7月18日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国忠之女</h2>
+            <div class="person-card" data-name="薇霓">
+                <strong>薇霓</strong>
+                <div class="person-info">
+                    <span>生: 1997年5月24日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国明长子</h2>
+            <div class="person-card" data-name="家钧">
+                <strong>家钧</strong>
+                <div class="person-info">
+                    <span>生: 1976年10月31日</span>
+                    <span>职称: 海南大学毕业</span>
+                </div>
+                <div class="notes">
+                    字: 李雄
+                    <br>配偶: 乐东黄流李雪妃 (生于 1976年11月23日)
+                </div>
+            </div>
+            <div class="children">
+                <div class="children-line"></div>
+                <div class="child-node">
+                    <div class="person-card" data-name="修宇"><strong>修宇</strong> (男)</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国明次子</h2>
+            <div class="person-card" data-name="家锐">
+                <strong>家锐</strong>
+                <div class="person-info">
+                    <span>生: 1980年10月21日 申时</span>
+                    <span>职称: 三亚市黄江玉 (生于 1984年2月4日)</span>
+                </div>
+                <div class="notes">
+                    字: 修宇
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国耀之子</h2>
+            <div class="person-card" data-name="家楠">
+                <strong>家楠</strong>
+                <div class="person-info">
+                    <span>生: 1995年11月30日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国清之子</h2>
+            <div class="person-card" data-name="家贵">
+                <strong>家贵</strong>
+                <div class="person-info">
+                    <span>生庚未详, 居印尼</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国文长子</h2>
+            <div class="person-card" data-name="冯毅">
+                <strong>冯毅</strong>
+                <div class="person-info">
+                    <span>生: 1966年7月19日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国文次子</h2>
+            <div class="person-card" data-name="冯锐">
+                <strong>冯锐</strong>
+                <div class="person-info">
+                    <span>生: 1990年11月10日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国奋之子</h2>
+            <div class="person-card" data-name="冯程">
+                <strong>冯程</strong>
+                <div class="person-info">
+                    <span>生: 2008年10月20日 辰时</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">冯健之子</h2>
+            <div class="person-card" data-name="家健">
+                <strong>家健</strong>
+                <div class="person-info">
+                    <span>生: 2002年3月12日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">苗康之子</h2>
+            <div class="person-card" data-name="家炫">
+                <strong>家炫</strong>
+                <div class="person-info">
+                    <span>生: 2009年1月17日 丑时</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-title">(三十六)四支陞公之派 - 第十五世</div>
+    <div class="family-tree">
+        <div class="branch">
+            <h2 style="margin-top:0;">国诚之女</h2>
+            <div class="person-card" data-name="家宜">
+                <strong>家宜</strong>
+                <div class="person-info">
+                    <span>生: 2005年9月11日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国链之女</h2>
+            <div class="person-card" data-name="春媛">
+                <strong>春媛</strong>
+                <div class="person-info">
+                    <span>生: 1993年4月3日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国链之子</h2>
+            <div class="person-card" data-name="家乐">
+                <strong>家乐</strong>
+                <div class="person-info">
+                    <span>生: 1997年4月25日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国财之子</h2>
+            <div class="person-card" data-name="家菘">
+                <strong>家菘</strong>
+                <div class="person-info">
+                    <span>生: 2004年11月8日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">国江之子</h2>
+            <div class="person-card" data-name="家晨">
+                <strong>家晨</strong>
+                <div class="person-info">
+                    <span>生: 2009年11月1日</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-title">(三十七)长支梧公之派 - 第十六世</div>
+    <div class="family-tree">
+        <div class="branch">
+            <h2 style="margin-top:0;">家龙之子</h2>
+            <div class="person-card" data-name="修原">
+                <strong>修原</strong>
+                <div class="person-info">
+                    <span>生: 2001年4月9日 未时</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">家龙长女</h2>
+            <div class="person-card" data-name="辛颖">
+                <strong>辛颖</strong>
+                <div class="person-info">
+                    <span>生: 2002年11月28日 酉时</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">家龙次女</h2>
+            <div class="person-card" data-name="彩维">
+                <strong>彩维</strong>
+                <div class="person-info">
+                    <span>生: 2005年6月15日 巳时</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">家龙三女</h2>
+            <div class="person-card" data-name="辛熹">
+                <strong>辛熹</strong>
+                <div class="person-info">
+                    <span>生: 2008年1月2日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">家辉长女</h2>
+            <div class="person-card" data-name="雅瑄">
+                <strong>雅瑄</strong>
+                <div class="person-info">
+                    <span>生: 2002年7月1日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">家辉次女</h2>
+            <div class="person-card" data-name="琬渲">
+                <strong>琬瑄</strong>
+                <div class="person-info">
+                    <span>生: 2004年6月17日</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="branch">
+            <h2 style="margin-top:0;">家辉三女</h2>
+            <div class="person-card" data-name="梓瑄">
+                <strong>梓瑄</strong>
+                <div class="person-info">
+                    <span>生: 2008年1月16日</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function searchTree() {
+        const input = document.getElementById('searchInput').value.trim().toLowerCase();
+        const cards = document.querySelectorAll('.person-card');
+
+        // Remove existing highlights
+        cards.forEach(card => {
+            card.classList.remove('highlight');
+        });
+
+        if (input.length === 0) {
+            return;
+        }
+
+        // Add highlight to matching cards
+        cards.forEach(card => {
+            if (card.textContent.toLowerCase().includes(input) || card.dataset.name.toLowerCase().includes(input)) {
+                card.classList.add('highlight');
+            }
+        });
+    }
+
+    // Example search for demonstration, adapt to your data structure
+    const searchInput = document.getElementById('searchInput');
+    const clearSearch = document.getElementById('clearSearch');
+    function highlightSearch(term) {
+        if (!term) return;
+        document.querySelectorAll('.family-tree-member').forEach(el => {
+            if (el.textContent.includes(term)) {
+                el.style.background = '#e0f2fe';
+                el.style.border = '2px solid #38bdf8';
+            } else {
+                el.style.background = '';
+                el.style.border = '';
+            }
+        });
+    }
+    searchInput.addEventListener('input', (e) => {
+        highlightSearch(e.target.value.trim());
+    });
+    clearSearch.addEventListener('click', () => {
+        searchInput.value = "";
+        highlightSearch("");
+    });
+</script>
+
+</body>
+</html>

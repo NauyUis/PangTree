@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>冯氏家族世系图</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        .generation-title {
+            position: sticky;
+            top: 0;
+            background-color: #e5e7eb;
+            z-index: 10;
+            padding: 0.5rem 1rem;
+            border-bottom: 2px solid #9ca3af;
+        }
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .details-panel {
+            transition: max-height 0.5s ease-out, opacity 0.5s ease-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        .details-panel.show {
+            max-height: 500px;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="p-4">
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-md mb-8 rounded-xl flex flex-col sm:flex-row justify-between items-center px-6 py-4">
+        <div class="flex items-center gap-4 mb-2 sm:mb-0">
+            <a href="../index.html" class="text-lg font-bold text-indigo-700 hover:text-indigo-900">首页</a>
+            <a href="family-tree.html" class="text-lg font-bold text-blue-600 hover:text-blue-800">家族世系图</a>
+            <a href="Stem.html" class="text-lg font-bold text-green-600 hover:text-green-800">家族支系</a>
+        </div>
+        <div class="flex items-center gap-2">
+            <input id="search-input" type="text" placeholder="搜索成员姓名..." class="px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400" />
+            <button id="clear-search" class="px-3 py-2 bg-gray-200 rounded-full text-gray-600 hover:bg-gray-300">清除</button>
+        </div>
+    </nav>
+
+    <div class="container mx-auto max-w-6xl py-8">
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">冯氏家族世系图</h1>
+            <p class="text-lg text-gray-600">从第十世到第十六世</p>
+        </div>
+        <div id="family-tree-container" class="space-y-12"></div>
+    </div>
+
+    <script>
+        const familyData = {
+"第十世": [
+{ "姓名": "德滋总司", "信息": "生于清朝宣统辛亥年三月十八日（1911年4月16日）。卒于民国戊申年七月初三日（1968年7月28日）。配偶：潘氏，生于民国壬子年四月十七日（1912年6月1日）。" }
+],
+"第十一世": [
+{ "姓名": "业勤（德滋总司长子）", "信息": "生于民国丁卯年十月廿五日（1927年11月18日）。配偶：王春梅，生于民国戊辰年八月廿四日（1928年10月7日）。" }
+],
+"第十二世": [
+{ "姓名": "经猷（业勤之子）", "信息": "生于光绪戊戌年十二月廿九(1898年2月9日)巳时。卒于民国乙酉年八月十一(1945年9月16日)丑时。配偶：吴吉凤 生光绪丁酉年十二月初十(1898年1月2日)辰时。子女：邦煜、邦达。" }
+],
+"第十三世": [
+{ "姓名": "邦煜（经猷长子）", "信息": "生于民国己未年九月初三（1919年10月26日）。卒于辛丑年三月初七（1961年4月21日）。配偶：卢业鸾，生于民国己未年七月廿二（1919年8月17日）。子女：国栋 国樑 国强 国兴 国鼎 国倡  国棉（女） 国 花（女）。" },
+{ "姓名": "邦达（经猷次子）", "信息": "生民国己丑年七月初二 (1925 年 八 月 20 日 )。配偶：陈兴兰 生民国乙丑年四月廿七(1925年5月19日)。子女：国其 国鸿 国忠  国美（女） 国莉（女） 国瑛（女）。" }
+],
+"第十四世": [
+{ "姓名": "国栋（邦煜长子）", "信息": "生于民国甲申年二月初六（1944年2月28日）。卒于共和国乙亥年十月廿五（1995年12月16日）。**未婚。**" },
+{ "姓名": "国樑（邦煜次子）", "信息": "生民国甲申年四月廿八 (1944 年 5 月 20 日 )。配偶：全月仙 生民国乙酉年七月十二(1945 年 8 月 19 日 )。子女：家荣, 家翠(女) 丽婷(女) 桂兰(女)。" },
+{ "姓名": "国强（邦煜三子）", "信息": "生 民 国 乙 酉 年 七 月 十 三 (1945 年 8 月 20 日 )。配偶：赖八妹 生民国辛卯年二月十一(1951年3月18日)。子女：家龙 家辉 家贵 ，慧萍(女)。" },
+{ "姓名": "国兴（邦煜四子）", "信息": "生 民 国 丁 亥 年 又 二 月 初 八 (1947 年 3 月 30 日 )。配偶：林春菊 生民国己丑年十月三十(1949年12月19日)。子女：男 家华， 美花(女)， 薇莲(女)。" },
+{ "姓名": "国鼎（邦煜五子）", "信息": "国鼎 生民国戊子年九月廿八(1948年10月30日)。配偶：李连容 生民国己丑年十月初三(1949年11月22日)。子女：家彪， 家雄 ，倩玉(女)。" },
+{ "姓名": "国倡（邦煜六子）", "信息": "生 丁 酉 年 二 月 初 八 (1957 年 3 月 9 日 )。配偶：黄露娟 生壬寅年七月廿九(1962年8月28日)。子女：劲深，劲翰， 芷宜(女)。" },
+{ "姓名": "国棉（邦煜之女）", "信息": "生 庚 寅 年 五 月 十 四 (1950 年 6 月 28 日 )。适：林祥裕 生一九五零年一月一日。" },
+{ "姓名": "国花（邦煜之女）", "信息": "生辛卯年九月初八(1951年10月8日)。**未婚**。" },
+{ "姓名": "国其（邦达长子）", "信息": "目前无详细信息。" },
+{ "姓名": "国鸿 （邦达次子）", "信息": "目前无详细信息。" },
+{ "姓名": "国忠（邦达三子）", "信息": "目前无详细信息。" },
+{ "姓名": "国美（邦达之女）", "信息": "目前无详细信息。" },
+{ "姓名": "国莉（邦达二女）", "信息": "目前无详细信息。" },
+{ "姓名": "国瑛（邦达三女）", "信息": "目前无详细信息。" }
+],
+"第十五世": [
+{ "姓名": "家荣（国樑之子）", "信息": "生丙辰年八月廿四(1976年10月17日)。**未婚。**" },
+{ "姓名": "家翠（国樑之女）", "信息": "生己酉年十二月廿九(1970年2月5日)。适：林金生 生一九六六年九月九日。" },
+{ "姓名": "丽婷（国樑二女）", "信息": "生辛亥年十月初九(1971年11月26日)。适：卓福文 生一九六三年五月一日。" },
+{ "姓名": "桂兰（国樑三女）", "信息": "生一九七四年五月十二日。卒于一九八五年十一月二十五日。" },
+{ "姓名": "家龙（国强长子）", "信息": "生辛亥年八月十七(1971年10月5日)。配偶：王玉珍 生辛亥年五月十九(1971年6月11日)。子女：修塬，芊颖(女) 彩维(女) 芊熹(女)。" },
+{ "姓名": "家辉（国强二子）", "信息": "生于丁亥年十一月廿二（1973年1月3日）。配偶：林美黛，生于壬寅年九月初八（1973年10月3日）。子女：雅瑄（女）、琬瑄（女）。梓瑄(女)。" },
+{ "姓名": "家贵（国强三子）", "信息": "生于丁卯年二月十九（1987年3月18日）。配偶：王宝婷 1995年12月10日。子女 ： 修x。" },
+{ "姓名": "慧萍 （国强之女）", "信息": "生戊午年七月初九(1978年8月12日)。适：郑耀铭(1978年3月13日)。" },
+{ "姓名": "美华（国兴之女）", "信息": "生甲寅年四月十八(1974年5月9日)。" },
+{ "姓名": "薇莲（国兴之女）", "信息": "生乙卯年八月廿五(1975年9月30日)。" },
+{ "姓名": "家华（国兴之子）", "信息": "生戊午年六月十五(1978年7月19日)。" },
+{ "姓名": "家彪（国鼎之子）", "信息": "生于甲寅年四月十五（1974年5月6日）。妻子：陈爱玲，生于甲寅年四月初六（1974年4月27日）。子女：恩琦（女）、恩慧（女）。" },
+{ "姓名": "家雄（国鼎之子）", "信息": "生于丙辰年七月十六（1976年8月11日）。子女：修瑞， 恩媃(女)。" },
+{ "姓名": "倩玉 （国鼎之女）", "信息": "生癸亥年八月十三(1983年9月19日)。" },
+{ "姓名": "劲深 （国倡长子）", "信息": "生戊辰年六月廿一(1988年8月3日)。" },
+{ "姓名": "劲翰 （国倡二子）", "信息": "生癸酉年九月廿六(1993年11月9日)。" },
+{ "姓名": "芷宜 （国倡之女）", "信息": "生辛未年七月十二(1991年8月21日)。" }
+],
+"第十六世": [
+{ "姓名": "修塬 （家龙长子）", "信息": "生辛巳年三月十六(2001年4月9日)。" },
+{ "姓名": "芊颖(女) （家龙之女）", "信息": "生壬午年十月廿四(2002年11月28日)。" },
+{ "姓名": "彩维(女) （家龙二女）", "信息": "生乙酉年五月初九(2005年6月15日)。" },
+{ "姓名": "芊熹(女) （家龙三女）", "信息": "生丁亥年十一廿四(2008年1月2日)。" },
+{ "姓名": "雅瑄（家辉长女）", "信息": "生壬午年五月廿一(2002年7月1日)。" },
+{ "姓名": "琬瑄（家辉二女）", "信息": "生甲申年四月三十(2004年6月17日)。" },
+{ "姓名": "梓瑄（家辉三女）", "信息": "生丁亥年十二月十六日 (2008年1月23日)。" },
+{ "姓名": "恩琦（家彪之女）", "信息": "生癸未年五月廿五(2003年6月24日)。" },
+{ "姓名": "恩慧（家彪二女）", "信息": "生丙戌年八月初四(2006年9月26日)。" },
+{ "姓名": "修x（家彪之子）", "信息": "目前无详细信息。" },
+{ "姓名": "修瑞 （家雄长子）", "信息": "目前无详细信息。" },
+{ "姓名": "恩媃 （家雄之女）", "信息": "目前无详细信息。" }
+]
+};
+
+const container = document.getElementById('family-tree-container');
+const searchInput = document.getElementById('search-input');
+const clearSearch = document.getElementById('clear-search');
+
+function createGenerationSection(generation, members, filter) {
+    const section = document.createElement('div');
+    section.className = 'generation-section mb-8';
+
+    const title = document.createElement('h2');
+    title.className = 'generation-title text-2xl font-bold text-gray-700 mb-4 rounded-md shadow-md';
+    title.textContent = generation;
+    section.appendChild(title);
+
+    const membersGrid = document.createElement('div');
+    membersGrid.className = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6';
+    section.appendChild(membersGrid);
+
+    members.forEach(member => {
+        const card = document.createElement('div');
+        card.className = 'card bg-white rounded-xl shadow-lg p-6 flex flex-col items-center text-center transition-all duration-300';
+        if (filter && member.姓名.includes(filter)) {
+            card.classList.add('ring-2', 'ring-blue-400');
+        }
+
+        const name = document.createElement('h3');
+        name.className = 'text-xl font-semibold text-gray-800 mb-2';
+        name.textContent = member.姓名;
+        card.appendChild(name);
+
+        const detailsPanel = document.createElement('div');
+        detailsPanel.className = 'details-panel text-sm text-gray-500 mt-2';
+        detailsPanel.innerHTML = member.信息.replace(/\n/g, '<br>');
+        card.appendChild(detailsPanel);
+
+        const toggleButton = document.createElement('button');
+        toggleButton.className = 'mt-4 px-4 py-2 bg-blue-500 text-white rounded-full font-medium hover:bg-blue-600 transition-colors';
+        toggleButton.textContent = '查看详情';
+        card.appendChild(toggleButton);
+
+        toggleButton.addEventListener('click', () => {
+            detailsPanel.classList.toggle('show');
+            if (detailsPanel.classList.contains('show')) {
+                toggleButton.textContent = '收起';
+            } else {
+                toggleButton.textContent = '查看详情';
+            }
+        });
+
+        membersGrid.appendChild(card);
+    });
+
+    container.appendChild(section);
+}
+
+function renderTree(filter = "") {
+    container.innerHTML = "";
+    for (const generation in familyData) {
+        const filteredMembers = filter
+            ? familyData[generation].filter(m => m.姓名.includes(filter))
+            : familyData[generation];
+        if (filteredMembers.length > 0) {
+            createGenerationSection(generation, filteredMembers, filter);
+        }
+    }
+}
+
+searchInput.addEventListener('input', (e) => {
+    renderTree(e.target.value.trim());
+});
+clearSearch.addEventListener('click', () => {
+    searchInput.value = "";
+    renderTree();
+});
+renderTree();
+    </script>
+</body>
+</html>
